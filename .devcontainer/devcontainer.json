@@ -1,5 +1,5 @@
 {
-	"name": "ROS 2 Devcontainer (CPU-only)",
+	"name": "FRE Information Panel",
 	"dockerComposeFile": [
 		"compose.yaml"
 	],
@@ -8,11 +8,15 @@
 	"remoteUser": "root",
 
 	"forwardPorts": [
-		"vnc:5801"
+		"5173",
+		"9000"
 	],
 	"portsAttributes": {
-		"vnc:5801": {
-			"label": "novnc"
+		"5173": {
+			"label": "Information Panel"
+		},
+		"9000": {
+			"label": "ROS2 Web Tools Web Socket"
 		}
 	},
 

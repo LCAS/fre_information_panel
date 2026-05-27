@@ -10,11 +10,18 @@ RUN rm -rf /var/lib/apt/lists/* \
     && apt-get update --fix-missing \
     && apt-get -y install --no-install-recommends --fix-missing \
         bash-completion \
+        curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js 22 via NodeSource
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /workspace
 ENV ROS2_WS=/workspace
-RUN --mount=type=bind,source=.,target=/workspace rosdep update --rosdistro ${ROS_DISTRO} \
+COPY src /workspace/src
+RUN rosdep update --rosdistro ${ROS_DISTRO} \
     && apt-get update \
     && rosdep install --from-paths /workspace/src --ignore-src -r -y
 
@@ -28,4 +35,6 @@ FROM devcontainer AS final
 
 RUN /bin/bash -lc "source /opt/ros/${ROS_DISTRO}/setup.bash && colcon build"
 
-CMD ["/bin/bash", "-lc", "source /workspace/install/setup.bash && exec ros2 launch example example.launch.py"]
+EXPOSE 5173 9000
+
+CMD ["/bin/bash", "-lc", "source /opt/ros/${ROS_DISTRO}/setup.bash && source /workspace/install/setup.bash && exec ros2 launch fre_information_panel web.launch.py"]

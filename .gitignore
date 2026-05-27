@@ -39,6 +39,10 @@ srv/_*.py
 qtcreator-*
 *.user
 
+# Node.js
+**/node_modules
+**/dist
+
 /planning/cfg
 /planning/docs
 /planning/src

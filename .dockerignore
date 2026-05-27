@@ -14,3 +14,7 @@ install/
 .gitmodules
 
 .keep
+
+# Node.js
+**/node_modules
+**/dist
