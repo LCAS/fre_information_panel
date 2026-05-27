@@ -7,13 +7,13 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 5173",
     "build": "vite build",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write ../../README.md ../../compose.yaml ../../.devcontainer/devcontainer.json ../../.devcontainer/compose.yaml ../../.github/workflows/*.yml ./index.html ./package.json ./tsconfig.json ./vite.config.ts ./web.json ./server.js ./src/**/*.{ts,tsx,css} ./public/config.json ./public/manifest.webmanifest",
-    "format:check": "prettier --check ../../README.md ../../compose.yaml ../../.devcontainer/devcontainer.json ../../.devcontainer/compose.yaml ../../.github/workflows/*.yml ./index.html ./package.json ./tsconfig.json ./vite.config.ts ./web.json ./server.js ./src/**/*.{ts,tsx,css} ./public/config.json ./public/manifest.webmanifest",
+    "lint": "NODE_OPTIONS=--experimental-strip-types eslint .",
+    "lint:fix": "NODE_OPTIONS=--experimental-strip-types eslint . --fix",
+    "format": "prettier --write ../../README.md ../../compose.yaml ../../.devcontainer/devcontainer.json ../../.devcontainer/compose.yaml ../../.github/workflows/*.yml ./index.html ./package.json ./tsconfig.json ./vite.config.ts ./web.json ./server.ts ./eslint.config.ts ./src/**/*.{ts,tsx,css} ./public/config.json ./public/manifest.webmanifest",
+    "format:check": "prettier --check ../../README.md ../../compose.yaml ../../.devcontainer/devcontainer.json ../../.devcontainer/compose.yaml ../../.github/workflows/*.yml ./index.html ./package.json ./tsconfig.json ./vite.config.ts ./web.json ./server.ts ./eslint.config.ts ./src/**/*.{ts,tsx,css} ./public/config.json ./public/manifest.webmanifest",
     "style": "npm run format:check && npm run lint",
     "start:bridge": "rclnodejs-web web.json",
-    "start:ui": "node server.js",
+    "start:ui": "tsx server.ts",
     "postinstall": "npx generate-ros-messages"
   },
   "dependencies": {
@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
+    "@types/node": "^22.16.5",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.0",
@@ -34,6 +35,7 @@
     "prettier": "^3.6.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "tsx": "^4.20.3",
     "typescript-eslint": "^8.36.0",
     "typescript": "~5.7.0",
     "vite": "^6.0.0"

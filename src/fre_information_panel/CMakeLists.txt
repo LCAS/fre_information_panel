@@ -28,7 +28,7 @@ install(
 install(
 	FILES
 		${CMAKE_CURRENT_SOURCE_DIR}/web.json
-		${CMAKE_CURRENT_SOURCE_DIR}/server.js
+		${CMAKE_CURRENT_SOURCE_DIR}/server.ts
 		${CMAKE_CURRENT_SOURCE_DIR}/package.json
 	DESTINATION share/${PROJECT_NAME}
 )

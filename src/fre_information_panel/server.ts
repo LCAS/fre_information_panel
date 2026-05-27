@@ -6,10 +6,10 @@
  * by ROS launch via the `start:bridge` npm script.
  */
 
-import http from 'http';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import http from 'node:http';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -17,7 +17,7 @@ const PORT = 5173;
 const DIST_DIR = path.resolve(__dirname, 'dist');
 const IDLE_MS = Number.parseInt(process.env.FRE_INFORMATION_PANEL_IDLE_MS ?? '5000', 10);
 
-const MIME_TYPES = {
+const MIME_TYPES: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'application/javascript; charset=utf-8',
   '.mjs': 'application/javascript; charset=utf-8',
@@ -40,12 +40,14 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  if (urlPath === '/') urlPath = '/index.html';
+  if (urlPath === '/') {
+    urlPath = '/index.html';
+  }
 
-  const filePath = path.resolve(DIST_DIR, '.' + urlPath);
+  const filePath = path.resolve(DIST_DIR, `.${urlPath}`);
 
   // Prevent path traversal outside dist/
-  if (!filePath.startsWith(DIST_DIR + path.sep) && filePath !== DIST_DIR) {
+  if (!filePath.startsWith(`${DIST_DIR}${path.sep}`) && filePath !== DIST_DIR) {
     res.writeHead(403);
     res.end('Forbidden');
     return;
@@ -53,13 +55,14 @@ const server = http.createServer((req, res) => {
 
   fs.readFile(filePath, (err, data) => {
     if (err) {
-      // SPA fallback — serve index.html for any unmatched route
-      fs.readFile(path.join(DIST_DIR, 'index.html'), (err2, indexData) => {
-        if (err2) {
+      // SPA fallback: serve index.html for any unmatched route.
+      fs.readFile(path.join(DIST_DIR, 'index.html'), (indexErr, indexData) => {
+        if (indexErr) {
           res.writeHead(404);
           res.end('Not found');
           return;
         }
+
         res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
         res.end(indexData);
       });
