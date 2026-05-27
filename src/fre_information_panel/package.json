@@ -4,14 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0 --port 5173",
     "build": "vite build",
     "start:bridge": "rclnodejs-web web.json",
     "start:ui": "node server.js",
     "postinstall": "npx generate-ros-messages"
   },
   "dependencies": {
-    "rclnodejs": "^2.0.0"
+    "@tailwindcss/vite": "^4.3.0",
+    "rclnodejs": "^2.0.0",
+    "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

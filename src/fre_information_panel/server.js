@@ -15,6 +15,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const PORT = 5173;
 const DIST_DIR = path.resolve(__dirname, 'dist');
+const IDLE_MS = Number.parseInt(process.env.FRE_INFORMATION_PANEL_IDLE_MS ?? '5000', 10);
 
 const MIME_TYPES = {
   '.html':  'text/html; charset=utf-8',
@@ -31,6 +32,13 @@ const MIME_TYPES = {
 
 const server = http.createServer((req, res) => {
   let urlPath = (req.url ?? '/').split('?')[0];
+
+  if (urlPath === '/config.json') {
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ idleMs: Number.isNaN(IDLE_MS) ? 5000 : IDLE_MS }));
+    return;
+  }
+
   if (urlPath === '/') urlPath = '/index.html';
 
   const filePath = path.resolve(DIST_DIR, '.' + urlPath);
