@@ -1,19 +1,23 @@
 # FRE Information Panel
 
-ROS 2 package + React/Vite web UI for displaying bug detection text from the ROS topic:
+ROS 2 package + React/Vite web UI for displaying information (currently only bug detection alerts).
 
+The project uses `rclnodejs/web` as the browser bridge and is containerized through the `aoc_container_base` stack.
+
+## Topics
+
+### Bug Detection
 - Topic: /bug_detection/detected_bugs
 - Message type: std_msgs/msg/String
-- UI output: message text rendered in a p tag
-
-The project uses rclnodejs/web as the browser bridge and is containerized through the existing devcontainer Dockerfile and CI pipeline.
+- Expected Options: `[ "bee", "butterfly", "ladybird" ]`
+- Can be passed as `bee,butterfly` when both are detected.
 
 ## Architecture
 
 - ROS package: src/fre_information_panel
 - Frontend: React + Vite (served on port 5173)
 - Bridge: rclnodejs-web WebSocket capability endpoint (port 9000)
-- Runtime command: ros2 launch fre_information_panel web.launch.py
+- Runtime command: `ros2 launch fre_information_panel web.launch.py`
 
 ## ROS + Node Coupling
 
@@ -67,16 +71,21 @@ If you change the package and need to rebuild it manually, run colcon from /work
 
 ## Functional Test
 
-1. Open http://localhost:5173.
-2. Start the panel with:
+1. Start the panel with:
 
-	ros2 launch fre_information_panel web.launch.py
+```bash
+ros2 launch fre_information_panel web.launch.py
+```
+
+2. Open http://localhost:5173 (or hostname:5173 if connecting remotely).
 
 3. Publish a test message from another ROS terminal in the same domain:
 
-	ros2 topic pub /bug_detection/detected_bugs std_msgs/msg/String "{data: 'Bug found'}"
+```bash
+ros2 topic pub /bug_detection/detected_bugs std_msgs/msg/String "{data: 'butterfly'}"
+```
 
-4. Confirm the page p element updates to Bug found.
+4. Confirm the page updates to indicate that the bug has been found.
 
 ## Optional Hot-Reload UI Workflow
 
@@ -84,20 +93,24 @@ The default workflow is ROS-first via ros2 launch. For frontend iteration only, 
 
 1. Start only the bridge:
 
-	ros2 launch fre_information_panel web.launch.py start_ui:=false
+```bash
+ros2 launch fre_information_panel web.launch.py start_ui:=false
+```
 
 2. In a second terminal, start the Vite dev server from the package source tree:
 
-	cd /workspace/src/fre_information_panel
-	npm run dev
+```bash
+cd /workspace/src/fre_information_panel
+npm run dev
+```
 
 3. Open the hot-reload UI at http://localhost:5173.
 
-This mode is intended for development only and is not the default team workflow.
+This mode is intended for development only and is not the default workflow.
 
 ## Docker Image Build
 
-The existing CI workflow builds .devcontainer/Dockerfile target final.
+The CI workflow builds .devcontainer/Dockerfile target final.
 
 Manual build:
 
