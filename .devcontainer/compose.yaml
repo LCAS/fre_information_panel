@@ -18,6 +18,7 @@ services:
       - ros_net
     environment:
       - ROS_DOMAIN_ID=10
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 
 volumes:
   colcon_build:

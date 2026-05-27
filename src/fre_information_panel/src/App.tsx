@@ -40,6 +40,7 @@ export default function App() {
           className={[
             'relative z-10 flex flex-col items-center gap-y-4 text-center text-[clamp(3.75rem,10vw,8rem)] font-black leading-[0.88] tracking-[0.22em] text-zinc-50 transition-all duration-300 sm:gap-y-6',
             '[text-shadow:0_0_18px_rgba(255,255,255,0.18),0_8px_30px_rgba(0,0,0,0.6)]',
+            activeDetections.length > 1 ? 'motion-safe:animate-pulse' : '',
             isVisible ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-2 scale-[0.985] opacity-0',
           ].join(' ')}
         >

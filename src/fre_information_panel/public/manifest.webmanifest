@@ -1,0 +1,19 @@
+{
+  "name": "FRE Information Panel",
+  "short_name": "FRE Panel",
+  "description": "LCASTOR FRE information panel for detected bug alerts.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#dc2626",
+  "theme_color": "#dc2626",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

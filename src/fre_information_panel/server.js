@@ -26,6 +26,7 @@ const MIME_TYPES = {
   '.png':   'image/png',
   '.ico':   'image/x-icon',
   '.json':  'application/json; charset=utf-8',
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
   '.woff':  'font/woff',
   '.woff2': 'font/woff2',
 };
