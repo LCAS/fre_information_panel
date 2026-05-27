@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { BugAudioPlayer } from './BugAudioPlayer';
 import { BugEmojiBackground } from './BugEmojiBackground';
 import { buildGradientBackground, formatDetectionLines, parseBugDetections } from './bugThemes';
 import { useDetectedBugs } from './useDetectedBugs';
@@ -21,6 +22,14 @@ export default function App() {
     activeDetections.length === 1 ? activeDetections[0].theme.solidBackgroundClass : 'bg-black';
   const backgroundStyle = gradientBackground ? { backgroundImage: gradientBackground } : undefined;
   const isVisible = activeDetections.length > 0;
+  const titleShiftClass =
+    titleLines.length <= 1
+      ? ''
+      : titleLines.length === 2
+        ? '-translate-y-[0.5em]'
+        : titleLines.length === 3
+          ? '-translate-y-[1em]'
+          : '-translate-y-[1.5em]';
 
   return (
     <main
@@ -35,21 +44,24 @@ export default function App() {
         detections={activeDetections}
         isActive={isVisible}
       />
+      <BugAudioPlayer detections={activeDetections} isActive={isVisible} />
       {isVisible ? (
-        <h1
-          className={[
-            'relative z-10 flex flex-col items-center gap-y-4 text-center text-[clamp(3.75rem,10vw,8rem)] font-black leading-[0.88] tracking-[0.22em] text-zinc-50 transition-all duration-300 sm:gap-y-6',
-            '[text-shadow:0_0_18px_rgba(255,255,255,0.18),0_8px_30px_rgba(0,0,0,0.6)]',
-            activeDetections.length > 1 ? 'motion-safe:animate-pulse' : '',
-            isVisible ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-2 scale-[0.985] opacity-0',
-          ].join(' ')}
-        >
-          {titleLines.map((line) => (
-            <span key={line} className="block pl-[0.22em]">
-              {line}
-            </span>
-          ))}
-        </h1>
+        <div className={['relative z-10 transform transition-transform duration-300', titleShiftClass].join(' ')}>
+          <h1
+            className={[
+              'text-center text-[clamp(3.75rem,10vw,8rem)] font-black leading-[0.9] tracking-[0.22em] text-zinc-50 transition-all duration-300',
+              '[text-shadow:0_0_18px_rgba(255,255,255,0.18),0_8px_30px_rgba(0,0,0,0.6)]',
+              activeDetections.length > 1 ? 'motion-safe:animate-pulse' : '',
+              'scale-100 opacity-100',
+            ].join(' ')}
+          >
+            {titleLines.map((line) => (
+              <span key={line} className="block pl-[0.22em]">
+                {line}
+              </span>
+            ))}
+          </h1>
+        </div>
       ) : null}
     </main>
   );

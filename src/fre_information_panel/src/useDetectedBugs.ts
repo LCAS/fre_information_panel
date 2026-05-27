@@ -36,9 +36,18 @@ export function useDetectedBugs(options?: UseDetectedBugsOptions): string {
 
     async function loadRuntimeConfig() {
       try {
-        const response = await fetch('/config.json');
+        const response = await fetch('/config.json', {
+          headers: {
+            Accept: 'application/json',
+          },
+        });
         if (!response.ok) {
-          throw new Error(`Unexpected config response: ${response.status}`);
+          return;
+        }
+
+        const contentType = response.headers.get('content-type') ?? '';
+        if (!contentType.includes('application/json')) {
+          return;
         }
 
         const config = (await response.json()) as RuntimeConfig;
@@ -51,7 +60,7 @@ export function useDetectedBugs(options?: UseDetectedBugsOptions): string {
         setRuntimeIdleMs(configuredIdleMs);
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
-        console.error('Failed to load runtime config:', message);
+        console.warn('Runtime config unavailable, using defaults:', message);
       }
     }
 
