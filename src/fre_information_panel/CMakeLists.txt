@@ -6,7 +6,7 @@ find_package(ament_cmake REQUIRED)
 find_program(NPM_EXECUTABLE npm REQUIRED)
 
 add_custom_target(frontend_build ALL
-	COMMAND ${NPM_EXECUTABLE} install
+	COMMAND ${NPM_EXECUTABLE} ci
 	COMMAND ${NPM_EXECUTABLE} run build
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	COMMENT "Installing Node.js dependencies and building Vite frontend"

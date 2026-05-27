@@ -36,7 +36,7 @@ jobs:
 
       - name: install frontend dependencies
         working-directory: src/fre_information_panel
-        run: npm install
+        run: npm ci
 
       - name: run style checks
         working-directory: src/fre_information_panel
