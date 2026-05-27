@@ -1,15 +1,15 @@
-# FRE Information Panel
+# 🐞 FRE Information Panel
 
 ROS 2 package + React/Vite web UI for displaying information (currently only bug detection alerts).
 
-The project uses `rclnodejs/web` as the browser bridge and is containerized through the `aoc_container_base` stack.
+The project uses `rclnodejs/web` as the browser bridge and is containerised through the `aoc_container_base` stack.
 
 ## Topics
 
 ### Bug Detection
-- Topic: /bug_detection/detected_bugs
-- Message type: std_msgs/msg/String
-- Expected Options: `[ "bee", "butterfly", "ladybird" ]`
+- Topic: `/bug_detection/detected_bugs`
+- Message type: `std_msgs/msg/String`
+- Expected options: `[ "bee", "butterfly", "ladybird" ]`
 - Can be passed as `bee,butterfly` when both are detected.
 
 ## Architecture
@@ -38,13 +38,17 @@ This package is intentionally coupled so ROS tooling also drives the Node build.
 
 If you want to run the same container stack outside VS Code, use the compose file directly:
 
-	docker compose -f .devcontainer/compose.yaml up --build
+```bash
+docker compose -f .devcontainer/compose.yaml up --build
+```
 
 ## Build and Run
 
 From inside the devcontainer, start the panel with:
 
-	ros2 launch fre_information_panel web.launch.py
+```bash
+ros2 launch fre_information_panel web.launch.py
+```
 
 This launch file starts two processes separately:
 
@@ -53,7 +57,9 @@ This launch file starts two processes separately:
 
 To change how long text remains visible after the most recent topic update:
 
-	ros2 launch fre_information_panel web.launch.py idle_ms:=5000
+```bash
+ros2 launch fre_information_panel web.launch.py idle_ms:=5000
+```
 
 Services exposed:
 
@@ -66,8 +72,10 @@ The devcontainer already performs the initial build and environment setup for yo
 
 If you change the package and need to rebuild it manually, run colcon from /workspace so the cached build, install, and log volumes are reused:
 
-	cd /workspace
-	colcon build --packages-select fre_information_panel
+```bash
+cd /workspace
+colcon build --packages-select fre_information_panel
+```
 
 ## Functional Test
 
@@ -82,7 +90,12 @@ ros2 launch fre_information_panel web.launch.py
 3. Publish a test message from another ROS terminal in the same domain:
 
 ```bash
+ros2 topic pub /bug_detection/detected_bugs std_msgs/msg/String "{data: 'bee'}"
 ros2 topic pub /bug_detection/detected_bugs std_msgs/msg/String "{data: 'butterfly'}"
+ros2 topic pub /bug_detection/detected_bugs std_msgs/msg/String "{data: 'ladybird'}"
+ros2 topic pub /bug_detection/detected_bugs std_msgs/msg/String "{data: 'bee,ladybird'}"
+ros2 topic pub /bug_detection/detected_bugs std_msgs/msg/String "{data: 'bee,butterfly'}"
+ros2 topic pub /bug_detection/detected_bugs std_msgs/msg/String "{data: 'bee,butterfly,ladybird'}"
 ```
 
 4. Confirm the page updates to indicate that the bug has been found.
@@ -114,8 +127,12 @@ The CI workflow builds .devcontainer/Dockerfile target final.
 
 Manual build:
 
-	docker build -t fre-information-panel --target final -f .devcontainer/Dockerfile .
+```bash
+docker build -t fre-information-panel --target final -f .devcontainer/Dockerfile .
+```
 
 Manual run:
 
-	docker run --rm -p 5173:5173 -p 9000:9000 fre-information-panel
+```bash
+docker run --rm -p 5173:5173 -p 9000:9000 fre-information-panel
+```

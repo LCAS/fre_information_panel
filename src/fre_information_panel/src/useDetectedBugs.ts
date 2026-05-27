@@ -71,7 +71,6 @@ export function useDetectedBugs(options?: UseDetectedBugsOptions): string {
       }
 
       isReceivingRef.current = true;
-      console.log('onEnter');
       onEnterRef.current?.();
     }
 
@@ -82,7 +81,6 @@ export function useDetectedBugs(options?: UseDetectedBugsOptions): string {
 
       isReceivingRef.current = false;
       setBugText('');
-      console.log('onExit');
       onExitRef.current?.();
     }
 
