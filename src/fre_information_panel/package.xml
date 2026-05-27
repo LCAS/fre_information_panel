@@ -4,7 +4,7 @@
   <name>fre_information_panel</name>
   <version>0.0.0</version>
   <description>React + Vite information panel subscribing to ROS 2 topics via rclnodejs/web</description>
-  <maintainer email="todo@example.com">maintainer</maintainer>
+  <maintainer email="joshcooper@lincoln.ac.uk">Josh Cooper</maintainer>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>

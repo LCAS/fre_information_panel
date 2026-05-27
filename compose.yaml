@@ -1,0 +1,15 @@
+services:
+  fre_information_panel:
+    image: ghcr.io/lcas/fre_information_panel:latest
+    stdin_open: true
+    tty: true
+    ports:
+      - "5173:5173"
+      - "9000:9000"
+    networks:
+      - ros_net
+    environment:
+      - ROS_DOMAIN_ID=10
+
+networks:
+  ros_net:
