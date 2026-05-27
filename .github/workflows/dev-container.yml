@@ -17,6 +17,8 @@ on:
 jobs:
   build_devcontainer:
     runs-on: ubuntu-latest
+    env:
+      ROS_DISTRO: humble
     steps:
       - name: Checkout from github
         uses: actions/checkout@v6
@@ -30,7 +32,7 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: src/fre_information_panel
-        run: npm install
+        run: npm ci --ignore-scripts
 
       - name: Run style checks
         working-directory: src/fre_information_panel
