@@ -1,0 +1,25 @@
+# GPU override — merge on top of compose.yaml and compose.gpu.yaml when an NVIDIA GPU is available.
+# Requires the NVIDIA Container Toolkit to be installed and configured.
+#
+# Usage: docker compose -f compose.yaml -f compose.gpu.yaml -f compose.nvidia.yaml up
+
+services:
+
+  vnc:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu, utility, video, graphics]
+
+  develop:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu, compute, utility, video, graphics]
+

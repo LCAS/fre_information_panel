@@ -1,0 +1,20 @@
+{
+	"name": "ROS 2 Devcontainer (NVIDIA GPU)",
+	"dockerComposeFile": [
+		"../compose.yaml",
+		"../compose.gpu.yaml",
+		"../compose.nvidia.yaml"
+	],
+	"service": "develop",
+	"workspaceFolder": "/workspace",
+	"remoteUser": "root",
+	"forwardPorts": [
+		"vnc:5801"
+	],
+	"portsAttributes": {
+		"vnc:5801": {
+			"label": "novnc"
+		}
+	}
+}
+
