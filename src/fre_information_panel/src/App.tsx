@@ -40,13 +40,15 @@ export default function App() {
       ].join(' ')}
       style={backgroundStyle}
     >
-      <BugEmojiBackground
-        detections={activeDetections}
-        isActive={isVisible}
-      />
+      <BugEmojiBackground detections={activeDetections} isActive={isVisible} />
       <BugAudioPlayer detections={activeDetections} isActive={isVisible} />
       {isVisible ? (
-        <div className={['relative z-10 transform transition-transform duration-300', titleShiftClass].join(' ')}>
+        <div
+          className={[
+            'relative z-10 transform transition-transform duration-300',
+            titleShiftClass,
+          ].join(' ')}
+        >
           <h1
             className={[
               'text-center text-[clamp(3.75rem,10vw,8rem)] font-black leading-[0.9] tracking-[0.22em] text-zinc-50 transition-all duration-300',

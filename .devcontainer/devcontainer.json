@@ -1,40 +1,73 @@
 {
-	"name": "FRE Information Panel",
-	"dockerComposeFile": [
-		"compose.yaml"
-	],
-	"service": "develop",
-	"workspaceFolder": "/workspace",
-	"remoteUser": "root",
+  "name": "FRE Information Panel",
+  "dockerComposeFile": ["compose.yaml"],
+  "service": "develop",
+  "workspaceFolder": "/workspace",
+  "remoteUser": "root",
 
-	"forwardPorts": [
-		"5173",
-		"9000"
-	],
-	"portsAttributes": {
-		"5173": {
-			"label": "Information Panel"
-		},
-		"9000": {
-			"label": "ROS2 Web Tools Web Socket"
-		}
-	},
+  "forwardPorts": ["5173", "9000"],
+  "portsAttributes": {
+    "5173": {
+      "label": "Information Panel"
+    },
+    "9000": {
+      "label": "ROS2 Web Tools Web Socket"
+    }
+  },
 
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"ms-python.python",
-				"GitHub.vscode-pull-request-github",
-				"ms-vscode.cpptools",
-				"JaehyunShim.vscode-ros2",
-				"nonanonno.vscode-ros2",
-				"deitry.colcon-helper",
-				"github.vscode-github-actions"
-			]
-		}
-	},
-	"hostRequirements": {
-		"cpus": 1,
-		"memory": "2gb"
-	}
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "GitHub.vscode-pull-request-github",
+        "ms-vscode.cpptools",
+        "JaehyunShim.vscode-ros2",
+        "nonanonno.vscode-ros2",
+        "deitry.colcon-helper",
+        "github.vscode-github-actions",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "EditorConfig.EditorConfig"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": true
+        },
+        "eslint.useFlatConfig": true,
+        "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+        "prettier.configPath": "/workspace/.prettierrc.json",
+        "prettier.ignorePath": "/workspace/.prettierignore",
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[javascriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[typescriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[json]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[markdown]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[css]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[yaml]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        }
+      }
+    }
+  },
+  "hostRequirements": {
+    "cpus": 1,
+    "memory": "2gb"
+  }
 }

@@ -4,7 +4,7 @@ import type { BugDetectionShare } from './bugThemes';
 // Intro tracks are like "this is a ...." or "this is called ..."
 const INTRO_TRACKS = ['/sounds/intro1.ogg', '/sounds/intro2.ogg'];
 
-/// Error tracks are played when an unknown bug is detected.
+// Error tracks are played when an unknown bug is detected.
 const ERROR_TRACKS = ['/sounds/error1.ogg', '/sounds/error2.ogg'];
 
 type BugAudioPlayerProps = {

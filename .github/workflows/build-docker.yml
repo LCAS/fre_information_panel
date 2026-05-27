@@ -2,11 +2,11 @@ name: Docker Image CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ['main']
     # ensure that version tags also trigger a build, naming convention is `vX.Y.Z`
     # make sure the naming convention is followed in tags.
     tags:
-      - "v*"
+      - 'v*'
   pull_request:
 
   workflow_dispatch:
@@ -27,6 +27,21 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: src/fre_information_panel/.nvmrc
+          cache: npm
+          cache-dependency-path: src/fre_information_panel/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: src/fre_information_panel
+        run: npm install
+
+      - name: Run style checks
+        working-directory: src/fre_information_panel
+        run: npm run style
 
       # log in to GitHub Container Registry with correct permission
       - name: Docker Login GHCR

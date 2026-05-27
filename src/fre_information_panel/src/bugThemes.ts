@@ -68,7 +68,9 @@ export function parseBugDetections(rawBugText: string): BugDetectionShare[] {
     return [];
   }
 
-  const hasUnknownToken = normalisedTokens.some((token) => !KNOWN_BUG_KEY_SET.has(token as KnownBugKey));
+  const hasUnknownToken = normalisedTokens.some(
+    (token) => !KNOWN_BUG_KEY_SET.has(token as KnownBugKey),
+  );
   if (hasUnknownToken) {
     return [
       {

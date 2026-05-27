@@ -7,6 +7,7 @@ The project uses `rclnodejs/web` as the browser bridge and is containerised thro
 ## Topics
 
 ### Bug Detection
+
 - Topic: `/bug_detection/detected_bugs`
 - Message type: `std_msgs/msg/String`
 - Expected options: `[ "bee", "butterfly", "ladybird" ]`
@@ -75,6 +76,38 @@ If you change the package and need to rebuild it manually, run colcon from /work
 ```bash
 cd /workspace
 colcon build --packages-select fre_information_panel
+```
+
+## Formatting and Lint Checks
+
+Run style checks from the frontend package directory:
+
+```bash
+cd /workspace/src/fre_information_panel
+```
+
+Check formatting only:
+
+```bash
+npm run format:check
+```
+
+Check lint only:
+
+```bash
+npm run lint
+```
+
+Run both checks together (same command used by CI):
+
+```bash
+npm run style
+```
+
+To automatically apply formatting changes:
+
+```bash
+npm run format
 ```
 
 ## Functional Test

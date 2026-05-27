@@ -82,24 +82,26 @@ export function BugEmojiBackground({ detections, isActive }: BugEmojiBackgroundP
         const detection = assignedDetections[index] ?? detections[index % detections.length];
 
         return (
-        <span
-          key={`${detection.key}-${position.top}-${position.left}-${index}`}
-          className="absolute block leading-none motion-safe:animate-pulse transition-all duration-500"
-          style={{
-            top: position.top,
-            left: position.left,
-            fontSize: position.size,
-            opacity: isActive ? 0.28 : 0,
-            transform: isActive
-              ? `translate3d(0, 0, 0) rotate(${position.rotate}) scale(1)`
-              : `translate3d(0, 18px, 0) rotate(${position.rotate}) scale(0.94)`,
-            filter: 'drop-shadow(0 12px 28px rgba(15, 23, 42, 0.16))',
-            animationDelay: position.delay,
-            animationDuration: position.duration,
-          } as CSSProperties}
-        >
-          {detection.theme.emoji}
-        </span>
+          <span
+            key={`${detection.key}-${position.top}-${position.left}-${index}`}
+            className="absolute block leading-none motion-safe:animate-pulse transition-all duration-500"
+            style={
+              {
+                top: position.top,
+                left: position.left,
+                fontSize: position.size,
+                opacity: isActive ? 0.28 : 0,
+                transform: isActive
+                  ? `translate3d(0, 0, 0) rotate(${position.rotate}) scale(1)`
+                  : `translate3d(0, 18px, 0) rotate(${position.rotate}) scale(0.94)`,
+                filter: 'drop-shadow(0 12px 28px rgba(15, 23, 42, 0.16))',
+                animationDelay: position.delay,
+                animationDuration: position.duration,
+              } as CSSProperties
+            }
+          >
+            {detection.theme.emoji}
+          </span>
         );
       })}
     </div>

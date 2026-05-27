@@ -1,6 +1,5 @@
 name: Copilot Setup Steps
 
-
 on:
   workflow_dispatch:
 
@@ -26,7 +25,22 @@ jobs:
       ROS_DISTRO: humble
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
+
+      - name: setup node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: src/fre_information_panel/.nvmrc
+          cache: npm
+          cache-dependency-path: src/fre_information_panel/package-lock.json
+
+      - name: install frontend dependencies
+        working-directory: src/fre_information_panel
+        run: npm install
+
+      - name: run style checks
+        working-directory: src/fre_information_panel
+        run: npm run style
 
       - name: setup ROS environment
         uses: ros-tooling/setup-ros@v0.7

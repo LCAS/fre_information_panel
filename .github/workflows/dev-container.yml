@@ -1,4 +1,4 @@
-name: 'devcontainer CI' 
+name: devcontainer CI
 on:
   workflow_dispatch:
 
@@ -20,11 +20,29 @@ jobs:
     steps:
       - name: Checkout from github
         uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: src/fre_information_panel/.nvmrc
+          cache: npm
+          cache-dependency-path: src/fre_information_panel/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: src/fre_information_panel
+        run: npm install
+
+      - name: Run style checks
+        working-directory: src/fre_information_panel
+        run: npm run style
+
       - name: extract the github reference
         run: echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
-      - name: "image name from repo name"
+
+      - name: 'image name from repo name'
         id: docker_image_name
         run: echo "docker_image=${{ github.repository }}" | tr '[:upper:]' '[:lower:]' |sed 's/[^0-9,a-z,A-Z,=,_,\/]/-/g' >>${GITHUB_OUTPUT}
+
       - name: setup buildx
         uses: docker/setup-buildx-action@v4
 

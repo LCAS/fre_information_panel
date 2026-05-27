@@ -1,0 +1,6 @@
+build/
+install/
+log/
+src/fre_information_panel/node_modules/
+src/fre_information_panel/dist/
+**/.DS_Store
