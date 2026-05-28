@@ -1,6 +1,6 @@
 ARG BASE_IMAGE=lcas.lincoln.ac.uk/ros:humble-latest
 ARG ROS_DISTRO=humble
-ARG NODE_VERSION=22.16.0
+ARG NODE_VERSION=24.11.1
 
 FROM ${BASE_IMAGE} AS devcontainer
 

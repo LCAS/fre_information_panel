@@ -28,7 +28,7 @@ This package is intentionally coupled so ROS tooling also drives the Node build.
 - colcon build triggers npm install and npm run build via CMake custom target.
 - ros2 launch starts the UI and bridge as separate processes.
 - The UI display timeout is configurable with the launch argument idle_ms.
-- Runtime requires Node.js `>=22.16.0 <23` (see `.nvmrc`, `package.json` engines, and Dockerfile pinning).
+- Runtime requires Node.js `>=24.11.1 <25` (see `.nvmrc`, `package.json` engines, and Dockerfile pinning).
 
 ## Devcontainer Usage
 
