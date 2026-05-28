@@ -18,7 +18,10 @@ const PORT = 5173;
 const DIST_DIR = fs.realpathSync(path.resolve(__dirname, 'dist'));
 const IDLE_MS = Number.parseInt(process.env.FRE_INFORMATION_PANEL_IDLE_MS ?? '5000', 10);
 const BRIDGE_HOST = process.env.FRE_INFORMATION_PANEL_BRIDGE_HOST ?? '127.0.0.1';
-const BRIDGE_PORT = Number.parseInt(process.env.FRE_INFORMATION_PANEL_BRIDGE_PORT ?? '9000', 10);
+const BRIDGE_PORT = (() => {
+  const port = Number.parseInt(process.env.FRE_INFORMATION_PANEL_BRIDGE_PORT ?? '9000', 10);
+  return Number.isFinite(port) && port > 0 && port < 65536 ? port : 9000;
+})();
 const BRIDGE_ENDPOINT =
   process.env.FRE_INFORMATION_PANEL_BRIDGE_ENDPOINT?.startsWith('/') === true
     ? process.env.FRE_INFORMATION_PANEL_BRIDGE_ENDPOINT
@@ -82,8 +85,16 @@ async function readDistFile(filePath: string): Promise<Buffer> {
 }
 
 const server = http.createServer(async (req, res) => {
-  const requestUrl = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`);
+  let requestUrl: URL;
+  try {
+    requestUrl = new URL(req.url ?? '/', 'http://localhost');
+  } catch {
+    res.writeHead(400);
+    res.end('Bad request');
+    return;
+  }
   const urlPath = requestUrl.pathname;
+
 
   if (urlPath === '/config.json') {
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -142,7 +153,14 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.on('upgrade', (req, socket, head) => {
-  const requestUrl = new URL(req.url ?? '/', 'http://localhost');
+  let requestUrl: URL;
+  try {
+    requestUrl = new URL(req.url ?? '/', 'http://localhost');
+  } catch {
+    socket.write('HTTP/1.1 400 Bad Request\r\n\r\n');
+    socket.destroy();
+    return;
+  }
   if (requestUrl.pathname !== BRIDGE_ENDPOINT) {
     socket.write('HTTP/1.1 404 Not Found\r\n\r\n');
     socket.destroy();
