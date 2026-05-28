@@ -5,12 +5,12 @@ services:
     tty: true
     ports:
       - '5173:5173'
-      - '9000:9000'
     networks:
       - ros_net
     environment:
       - ROS_DOMAIN_ID=10
       - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      - FRE_INFORMATION_PANEL_BRIDGE_ENDPOINT=/capability
 
 networks:
   ros_net:

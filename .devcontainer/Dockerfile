@@ -4,6 +4,8 @@ ARG ROS_DISTRO=humble
 FROM ${BASE_IMAGE} AS devcontainer
 
 ENV main_user=${USER:-root}
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false \
+    npm_config_update_notifier=false
 
 USER root
 RUN rm -rf /var/lib/apt/lists/* \
@@ -13,8 +15,8 @@ RUN rm -rf /var/lib/apt/lists/* \
         curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js 22 via NodeSource
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+# Install Node.js 24 via NodeSource
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
 
@@ -35,6 +37,6 @@ FROM devcontainer AS final
 
 RUN /bin/bash -lc "source /opt/ros/${ROS_DISTRO}/setup.bash && colcon build"
 
-EXPOSE 5173 9000
+EXPOSE 5173
 
 CMD ["/bin/bash", "-lc", "source /opt/ros/${ROS_DISTRO}/setup.bash && source /workspace/install/setup.bash && exec ros2 launch fre_information_panel web.launch.py"]

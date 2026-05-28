@@ -1,12 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import { connect } from 'rclnodejs/web';
 
-const BRIDGE_WS = `ws://${window.location.hostname}:9000/capability`;
+function getBridgeWsUrl(endpoint: string): string {
+  const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  return new URL(endpoint, `${wsProtocol}//${window.location.host}`).toString();
+}
 const TOPIC = '/bug_detection/detected_bugs';
 const DEFAULT_IDLE_MS = 5000;
+const DEFAULT_BRIDGE_ENDPOINT = '/capability';
 
 type RuntimeConfig = {
   idleMs?: number;
+  bridgeEndpoint?: string;
 };
 
 type UseDetectedBugsOptions = {
@@ -17,6 +22,7 @@ type UseDetectedBugsOptions = {
 
 export function useDetectedBugs(options?: UseDetectedBugsOptions): string {
   const [runtimeIdleMs, setRuntimeIdleMs] = useState<number>(DEFAULT_IDLE_MS);
+  const [bridgeEndpoint, setBridgeEndpoint] = useState<string>(DEFAULT_BRIDGE_ENDPOINT);
   const idleMs = options?.idleMs ?? runtimeIdleMs;
   const [bugText, setBugText] = useState<string>('');
   const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -28,10 +34,6 @@ export function useDetectedBugs(options?: UseDetectedBugsOptions): string {
   onExitRef.current = options?.onExit;
 
   useEffect(() => {
-    if (options?.idleMs !== undefined) {
-      return;
-    }
-
     let isMounted = true;
 
     async function loadRuntimeConfig() {
@@ -53,11 +55,21 @@ export function useDetectedBugs(options?: UseDetectedBugsOptions): string {
         const config = (await response.json()) as RuntimeConfig;
         const configuredIdleMs = config.idleMs;
 
-        if (!isMounted || configuredIdleMs === undefined || Number.isNaN(configuredIdleMs)) {
+        if (!isMounted) {
           return;
         }
 
-        setRuntimeIdleMs(configuredIdleMs);
+        if (
+          options?.idleMs === undefined &&
+          configuredIdleMs !== undefined &&
+          !Number.isNaN(configuredIdleMs)
+        ) {
+          setRuntimeIdleMs(configuredIdleMs);
+        }
+
+        if (typeof config.bridgeEndpoint === 'string' && config.bridgeEndpoint.startsWith('/')) {
+          setBridgeEndpoint(config.bridgeEndpoint);
+        }
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
         console.warn('Runtime config unavailable, using defaults:', message);
@@ -105,7 +117,7 @@ export function useDetectedBugs(options?: UseDetectedBugsOptions): string {
 
     async function setup() {
       try {
-        ros = await connect(BRIDGE_WS);
+        ros = await connect(getBridgeWsUrl(bridgeEndpoint));
         await ros.subscribe<'std_msgs/msg/String'>(TOPIC, (msg) => {
           handleEnter();
           setBugText(msg.data);
@@ -127,7 +139,7 @@ export function useDetectedBugs(options?: UseDetectedBugsOptions): string {
       handleExit();
       void ros?.close();
     };
-  }, [idleMs]);
+  }, [idleMs, bridgeEndpoint]);
 
   return bugText;
 }

@@ -130,8 +130,10 @@ export function BugAudioPlayer({ detections, isActive }: BugAudioPlayerProps) {
       const introTracks = fallbackIntroTrack
         ? [firstIntroTrack, fallbackIntroTrack]
         : [firstIntroTrack];
-      const primaryDetection = selectPrimaryDetection(detections);
-      const bugTrack = `/sounds/${primaryDetection.key}.ogg`;
+      const bugTracks =
+        detections.length > 1
+          ? detections.map((detection) => `/sounds/${detection.key}.ogg`)
+          : [`/sounds/${selectPrimaryDetection(detections).key}.ogg`];
 
       let didPlayIntro = false;
       for (const track of introTracks) {
@@ -145,7 +147,12 @@ export function BugAudioPlayer({ detections, isActive }: BugAudioPlayerProps) {
         return;
       }
 
-      void playTrack(bugTrack, audio, activeTokenRef, token);
+      for (const track of bugTracks) {
+        await playTrack(track, audio, activeTokenRef, token);
+        if (activeTokenRef.current !== token) {
+          return;
+        }
+      }
     }
 
     void playSequence();

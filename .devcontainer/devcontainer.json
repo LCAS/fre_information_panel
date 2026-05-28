@@ -5,13 +5,10 @@
   "workspaceFolder": "/workspace",
   "remoteUser": "root",
 
-  "forwardPorts": ["5173", "9000"],
+  "forwardPorts": ["5173"],
   "portsAttributes": {
     "5173": {
       "label": "Information Panel"
-    },
-    "9000": {
-      "label": "ROS2 Web Tools Web Socket"
     }
   },
 
