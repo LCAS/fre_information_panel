@@ -95,7 +95,6 @@ const server = http.createServer(async (req, res) => {
   }
   const urlPath = requestUrl.pathname;
 
-
   if (urlPath === '/config.json') {
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(
