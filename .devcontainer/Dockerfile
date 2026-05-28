@@ -1,10 +1,11 @@
 ARG BASE_IMAGE=lcas.lincoln.ac.uk/ros:humble-latest
 ARG ROS_DISTRO=humble
-ARG NODE_VERSION=24.11.1
 
 FROM ${BASE_IMAGE} AS devcontainer
 
 ENV main_user=${USER:-root}
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false \
+    npm_config_update_notifier=false
 
 USER root
 RUN rm -rf /var/lib/apt/lists/* \
@@ -12,14 +13,12 @@ RUN rm -rf /var/lib/apt/lists/* \
     && apt-get -y install --no-install-recommends --fix-missing \
         bash-completion \
         curl \
-        xz-utils \
     && rm -rf /var/lib/apt/lists/*
 
-# Install a pinned Node.js runtime version.
-RUN curl -fsSLO https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz \
-    && tar -xJf node-v${NODE_VERSION}-linux-x64.tar.xz -C /usr/local --strip-components=1 --no-same-owner \
-    && rm node-v${NODE_VERSION}-linux-x64.tar.xz \
-    && node --version | grep -Fx "v${NODE_VERSION}"
+# Install Node.js 24 via NodeSource
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /workspace
 ENV ROS2_WS=/workspace
