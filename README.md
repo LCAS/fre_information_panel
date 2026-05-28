@@ -67,6 +67,8 @@ Services exposed:
 - UI: http://localhost:5173
 - WebSocket bridge (proxied): ws://localhost:5173/capability
 
+The bridge path is runtime-configurable in Docker with `FRE_INFORMATION_PANEL_BRIDGE_ENDPOINT` (defaults to `/capability`), while the browser always connects through the same host it loaded the UI from.
+
 ## Rebuilding After Changes
 
 The devcontainer already performs the initial build and environment setup for you.

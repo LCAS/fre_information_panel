@@ -10,6 +10,7 @@ services:
     environment:
       - ROS_DOMAIN_ID=10
       - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      - FRE_INFORMATION_PANEL_BRIDGE_ENDPOINT=/capability
 
 networks:
   ros_net:

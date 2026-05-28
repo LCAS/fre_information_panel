@@ -19,6 +19,10 @@ const DIST_DIR = fs.realpathSync(path.resolve(__dirname, 'dist'));
 const IDLE_MS = Number.parseInt(process.env.FRE_INFORMATION_PANEL_IDLE_MS ?? '5000', 10);
 const BRIDGE_HOST = process.env.FRE_INFORMATION_PANEL_BRIDGE_HOST ?? '127.0.0.1';
 const BRIDGE_PORT = Number.parseInt(process.env.FRE_INFORMATION_PANEL_BRIDGE_PORT ?? '9000', 10);
+const BRIDGE_ENDPOINT =
+  process.env.FRE_INFORMATION_PANEL_BRIDGE_ENDPOINT?.startsWith('/') === true
+    ? process.env.FRE_INFORMATION_PANEL_BRIDGE_ENDPOINT
+    : '/capability';
 
 const MIME_TYPES: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
@@ -83,7 +87,12 @@ const server = http.createServer(async (req, res) => {
 
   if (urlPath === '/config.json') {
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify({ idleMs: Number.isNaN(IDLE_MS) ? 5000 : IDLE_MS }));
+    res.end(
+      JSON.stringify({
+        idleMs: Number.isNaN(IDLE_MS) ? 5000 : IDLE_MS,
+        bridgeEndpoint: BRIDGE_ENDPOINT,
+      }),
+    );
     return;
   }
 
@@ -134,7 +143,7 @@ const server = http.createServer(async (req, res) => {
 
 server.on('upgrade', (req, socket, head) => {
   const requestUrl = new URL(req.url ?? '/', 'http://localhost');
-  if (requestUrl.pathname !== '/capability') {
+  if (requestUrl.pathname !== BRIDGE_ENDPOINT) {
     socket.write('HTTP/1.1 404 Not Found\r\n\r\n');
     socket.destroy();
     return;
