@@ -5,6 +5,8 @@ import { buildGradientBackground, formatDetectionLines, parseBugDetections } fro
 import { useDetectedBugs } from './useDetectedBugs';
 
 export default function App() {
+  const soundParam = new URLSearchParams(window.location.search).get('sound');
+  const isSoundDisabled = soundParam?.toLowerCase() === 'off';
   const [isBugActive, setIsBugActive] = useState(false);
   const bugText = useDetectedBugs({
     onEnter: () => {
@@ -41,7 +43,9 @@ export default function App() {
       style={backgroundStyle}
     >
       <BugEmojiBackground detections={activeDetections} isActive={isVisible} />
-      <BugAudioPlayer detections={activeDetections} isActive={isVisible} />
+      {isSoundDisabled ? null : (
+        <BugAudioPlayer detections={activeDetections} isActive={isVisible} />
+      )}
       {isVisible ? (
         <div
           className={[

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { connect } from 'rclnodejs/web';
 
-const BRIDGE_WS = `ws://${window.location.hostname}:9000/capability`;
+const BRIDGE_WS = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/capability`;
 const TOPIC = '/bug_detection/detected_bugs';
 const DEFAULT_IDLE_MS = 5000;
 

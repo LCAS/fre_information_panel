@@ -17,7 +17,7 @@ The project uses `rclnodejs/web` as the browser bridge and is containerised thro
 
 - ROS package: src/fre_information_panel
 - Frontend: React + Vite (served on port 5173)
-- Bridge: rclnodejs-web WebSocket capability endpoint (port 9000)
+- Bridge: rclnodejs-web WebSocket capability endpoint proxied at `/capability` on port 5173
 - Runtime command: `ros2 launch fre_information_panel web.launch.py`
 
 ## ROS + Node Coupling
@@ -28,7 +28,7 @@ This package is intentionally coupled so ROS tooling also drives the Node build.
 - colcon build triggers npm install and npm run build via CMake custom target.
 - ros2 launch starts the UI and bridge as separate processes.
 - The UI display timeout is configurable with the launch argument idle_ms.
-- Dockerfile also pins Node.js 22 to keep runtime consistent with your requirement.
+- Runtime requires Node.js `>=22.16.0 <23` (see `.nvmrc`, `package.json` engines, and Dockerfile pinning).
 
 ## Devcontainer Usage
 
@@ -65,7 +65,7 @@ ros2 launch fre_information_panel web.launch.py idle_ms:=5000
 Services exposed:
 
 - UI: http://localhost:5173
-- WebSocket bridge: ws://localhost:9000/capability
+- WebSocket bridge (proxied): ws://localhost:5173/capability
 
 ## Rebuilding After Changes
 
@@ -119,6 +119,7 @@ ros2 launch fre_information_panel web.launch.py
 ```
 
 2. Open http://localhost:5173 (or hostname:5173 if connecting remotely).
+   - Add `?sound=off` (for example `http://localhost:5173/?sound=off`) to disable rendering the audio player UI.
 
 3. Publish a test message from another ROS terminal in the same domain:
 
@@ -167,5 +168,5 @@ docker build -t fre-information-panel --target final -f .devcontainer/Dockerfile
 Manual run:
 
 ```bash
-docker run --rm -p 5173:5173 -p 9000:9000 fre-information-panel
+docker run --rm -p 5173:5173 fre-information-panel
 ```

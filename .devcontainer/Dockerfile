@@ -1,5 +1,6 @@
 ARG BASE_IMAGE=lcas.lincoln.ac.uk/ros:humble-latest
 ARG ROS_DISTRO=humble
+ARG NODE_VERSION=22.16.0
 
 FROM ${BASE_IMAGE} AS devcontainer
 
@@ -11,12 +12,14 @@ RUN rm -rf /var/lib/apt/lists/* \
     && apt-get -y install --no-install-recommends --fix-missing \
         bash-completion \
         curl \
+        xz-utils \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js 22 via NodeSource
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
-    && rm -rf /var/lib/apt/lists/*
+# Install a pinned Node.js runtime version.
+RUN curl -fsSLO https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz \
+    && tar -xJf node-v${NODE_VERSION}-linux-x64.tar.xz -C /usr/local --strip-components=1 --no-same-owner \
+    && rm node-v${NODE_VERSION}-linux-x64.tar.xz \
+    && node --version | grep -Fx "v${NODE_VERSION}"
 
 WORKDIR /workspace
 ENV ROS2_WS=/workspace
@@ -35,6 +38,6 @@ FROM devcontainer AS final
 
 RUN /bin/bash -lc "source /opt/ros/${ROS_DISTRO}/setup.bash && colcon build"
 
-EXPOSE 5173 9000
+EXPOSE 5173
 
 CMD ["/bin/bash", "-lc", "source /opt/ros/${ROS_DISTRO}/setup.bash && source /workspace/install/setup.bash && exec ros2 launch fre_information_panel web.launch.py"]
