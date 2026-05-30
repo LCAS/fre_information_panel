@@ -7,6 +7,7 @@ export type AlertTheme = {
   emoji: string;
   solidBackgroundClass: string;
   gradientColour: string;
+  playIntro: boolean;
 };
 
 export type AlertDetectionShare = {
@@ -24,6 +25,7 @@ export const ALERT_THEMES: Record<AlertKey, AlertTheme> = {
     emoji: '🐝',
     solidBackgroundClass: 'bg-lime-600',
     gradientColour: '#65a30d',
+    playIntro: true,
   },
   butterfly: {
     key: 'butterfly',
@@ -31,6 +33,7 @@ export const ALERT_THEMES: Record<AlertKey, AlertTheme> = {
     emoji: '🦋',
     solidBackgroundClass: 'bg-yellow-300',
     gradientColour: '#fde047',
+    playIntro: true,
   },
   ladybird: {
     key: 'ladybird',
@@ -38,6 +41,7 @@ export const ALERT_THEMES: Record<AlertKey, AlertTheme> = {
     emoji: '🐞',
     solidBackgroundClass: 'bg-red-600',
     gradientColour: '#dc2626',
+    playIntro: true,
   },
   diseased_plant: {
     key: 'diseased_plant',
@@ -45,6 +49,7 @@ export const ALERT_THEMES: Record<AlertKey, AlertTheme> = {
     emoji: '🥀',
     solidBackgroundClass: 'bg-orange-600',
     gradientColour: '#ea580c',
+    playIntro: false,
   },
   unknown: {
     key: 'unknown',
@@ -52,6 +57,7 @@ export const ALERT_THEMES: Record<AlertKey, AlertTheme> = {
     emoji: '⚠️',
     solidBackgroundClass: 'bg-blue-600',
     gradientColour: '#2563eb',
+    playIntro: false,
   },
 };
 
@@ -121,6 +127,7 @@ export function parseAlertDetections(rawAlertText: string): AlertDetectionShare[
   });
 }
 
+// Multiple Detection Support.
 export function formatDetectionLines(detections: AlertDetectionShare[]): string[] {
   if (detections.length === 1 && detections[0].key === 'unknown') {
     return (detections[0].rawText ?? '').split('\n').filter(Boolean);

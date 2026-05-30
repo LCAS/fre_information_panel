@@ -127,13 +127,13 @@ ros2 launch fre_information_panel web.launch.py
 3. Publish a test message from another ROS terminal in the same domain:
 
 ```bash
-ros2 topic pub /information_panel/alert std_msgs/msg/String "{data: 'bee'}"
-ros2 topic pub /information_panel/alert std_msgs/msg/String "{data: 'butterfly'}"
-ros2 topic pub /information_panel/alert std_msgs/msg/String "{data: 'ladybird'}"
-ros2 topic pub /information_panel/alert std_msgs/msg/String "{data: 'diseased_plant'}"
-ros2 topic pub /information_panel/alert std_msgs/msg/String "{data: 'bee,ladybird'}"
-ros2 topic pub /information_panel/alert std_msgs/msg/String "{data: 'bee,butterfly'}"
-ros2 topic pub /information_panel/alert std_msgs/msg/String "{data: 'bee,butterfly,ladybird'}"
+ros2 topic pub --once /information_panel/alert std_msgs/msg/String "{data: 'bee'}"
+ros2 topic pub --once /information_panel/alert std_msgs/msg/String "{data: 'butterfly'}"
+ros2 topic pub --once /information_panel/alert std_msgs/msg/String "{data: 'ladybird'}"
+ros2 topic pub --once /information_panel/alert std_msgs/msg/String "{data: 'diseased_plant@left'}"
+ros2 topic pub --once /information_panel/alert std_msgs/msg/String "{data: 'bee,ladybird'}"
+ros2 topic pub --once /information_panel/alert std_msgs/msg/String "{data: 'bee,butterfly'}"
+ros2 topic pub --once /information_panel/alert std_msgs/msg/String "{data: 'bee,butterfly,ladybird'}"
 ```
 
 4. Confirm the page updates to display the alert.

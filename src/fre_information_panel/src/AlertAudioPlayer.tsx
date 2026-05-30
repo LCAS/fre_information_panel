@@ -2,14 +2,22 @@ import { useEffect, useRef, useState } from 'react';
 import type { AlertDetectionShare } from './alertThemes';
 
 // Intro tracks are like "this is a ...." or "this is called ..."
-const INTRO_TRACKS = ['/sounds/intro1.ogg', '/sounds/intro2.ogg'];
+const INTRO_TRACKS = [
+  '/sounds/intro1.ogg',
+  '/sounds/intro2.ogg',
+  '/sounds/intro3.ogg',
+  '/sounds/intro4.ogg',
+];
 
 // Error tracks are played when an unknown alert is detected.
 const ERROR_TRACKS = ['/sounds/error1.ogg', '/sounds/error2.ogg'];
 
+type Direction = 'left' | 'right' | undefined;
+
 type AlertAudioPlayerProps = {
   detections: AlertDetectionShare[];
   isActive: boolean;
+  direction?: Direction;
 };
 
 function pickRandomTrack(tracks: string[]): string {
@@ -26,13 +34,43 @@ function selectPrimaryDetection(detections: AlertDetectionShare[]): AlertDetecti
   }, detections[0]);
 }
 
+function isPlaybackCurrent(activeTokenRef: { current: number }, token: number): boolean {
+  return activeTokenRef.current === token;
+}
+
+function buildRetryTrackList(tracks: string[]): string[] {
+  const firstTrack = pickRandomTrack(tracks);
+  const fallbackTrack = tracks.find((track) => track !== firstTrack);
+
+  return fallbackTrack ? [firstTrack, fallbackTrack] : [firstTrack];
+}
+
+function shouldPlayIntroForDetections(detections: AlertDetectionShare[]): boolean {
+  return detections.some((detection) => detection.theme.playIntro);
+}
+
+function resolveAlertTracks(detections: AlertDetectionShare[]): string[] {
+  const hasUnknownDetection = detections.some((detection) => detection.key === 'unknown');
+
+  if (hasUnknownDetection) {
+    return [pickRandomTrack(ERROR_TRACKS)];
+  }
+
+  if (detections.length > 1) {
+    return detections.map((detection) => `/sounds/${detection.key}.ogg`);
+  }
+
+  return [`/sounds/${selectPrimaryDetection(detections).key}.ogg`];
+}
+
 async function playTrack(
   src: string,
   audio: HTMLAudioElement,
   activeTokenRef: { current: number },
   token: number,
 ): Promise<boolean> {
-  if (activeTokenRef.current !== token) {
+  // Ignore stale playback requests after the active alert set has changed.
+  if (!isPlaybackCurrent(activeTokenRef, token)) {
     return false;
   }
 
@@ -64,7 +102,66 @@ async function playTrack(
   });
 }
 
-export function AlertAudioPlayer({ detections, isActive }: AlertAudioPlayerProps) {
+async function playFirstAvailableTrack(
+  tracks: string[],
+  audio: HTMLAudioElement,
+  activeTokenRef: { current: number },
+  token: number,
+): Promise<boolean> {
+  for (const track of tracks) {
+    const didPlay = await playTrack(track, audio, activeTokenRef, token);
+    if (didPlay || !isPlaybackCurrent(activeTokenRef, token)) {
+      return didPlay;
+    }
+  }
+
+  return false;
+}
+
+async function playIntroIfNeeded(
+  detections: AlertDetectionShare[],
+  audio: HTMLAudioElement,
+  activeTokenRef: { current: number },
+  token: number,
+): Promise<boolean> {
+  if (!shouldPlayIntroForDetections(detections)) {
+    return true;
+  }
+
+  return playFirstAvailableTrack(buildRetryTrackList(INTRO_TRACKS), audio, activeTokenRef, token);
+}
+
+async function playDirectionIfPresent(
+  direction: Direction,
+  audio: HTMLAudioElement,
+  activeTokenRef: { current: number },
+  token: number,
+): Promise<void> {
+  if (!direction || !isPlaybackCurrent(activeTokenRef, token)) {
+    return;
+  }
+
+  await playTrack(`/sounds/${direction}.ogg`, audio, activeTokenRef, token);
+}
+
+async function playAlertTrackSequence(
+  tracks: string[],
+  direction: Direction,
+  audio: HTMLAudioElement,
+  activeTokenRef: { current: number },
+  token: number,
+): Promise<void> {
+  for (const track of tracks) {
+    await playTrack(track, audio, activeTokenRef, token);
+    await playDirectionIfPresent(direction, audio, activeTokenRef, token);
+
+    if (!isPlaybackCurrent(activeTokenRef, token)) {
+      return;
+    }
+  }
+}
+
+export function AlertAudioPlayer({ detections, isActive, direction }: AlertAudioPlayerProps) {
   const activeTokenRef = useRef(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isAudioEnabled, setIsAudioEnabled] = useState(false);
@@ -106,53 +203,18 @@ export function AlertAudioPlayer({ detections, isActive }: AlertAudioPlayerProps
     audio.currentTime = 0;
 
     async function playSequence() {
-      const hasUnknownDetection = detections.some((detection) => detection.key === 'unknown');
-
-      if (hasUnknownDetection) {
-        const firstErrorTrack = pickRandomTrack(ERROR_TRACKS);
-        const fallbackErrorTrack = ERROR_TRACKS.find((track) => track !== firstErrorTrack);
-        const errorTracks = fallbackErrorTrack
-          ? [firstErrorTrack, fallbackErrorTrack]
-          : [firstErrorTrack];
-
-        for (const track of errorTracks) {
-          const didPlay = await playTrack(track, audio, activeTokenRef, token);
-          if (didPlay || activeTokenRef.current !== token) {
-            return;
-          }
-        }
-
+      const didCompleteIntro = await playIntroIfNeeded(detections, audio, activeTokenRef, token);
+      if (!didCompleteIntro || !isPlaybackCurrent(activeTokenRef, token)) {
         return;
       }
 
-      const firstIntroTrack = pickRandomTrack(INTRO_TRACKS);
-      const fallbackIntroTrack = INTRO_TRACKS.find((track) => track !== firstIntroTrack);
-      const introTracks = fallbackIntroTrack
-        ? [firstIntroTrack, fallbackIntroTrack]
-        : [firstIntroTrack];
-      const alertTracks =
-        detections.length > 1
-          ? detections.map((detection) => `/sounds/${detection.key}.ogg`)
-          : [`/sounds/${selectPrimaryDetection(detections).key}.ogg`];
-
-      let didPlayIntro = false;
-      for (const track of introTracks) {
-        didPlayIntro = await playTrack(track, audio, activeTokenRef, token);
-        if (didPlayIntro || activeTokenRef.current !== token) {
-          break;
-        }
-      }
-
-      if (!didPlayIntro || activeTokenRef.current !== token) {
-        return;
-      }
-
-      for (const track of alertTracks) {
-        await playTrack(track, audio, activeTokenRef, token);
-        if (activeTokenRef.current !== token) {
-          return;
-        }
-      }
+      await playAlertTrackSequence(
+        resolveAlertTracks(detections),
+        direction,
+        audio,
+        activeTokenRef,
+        token,
+      );
     }
 
     void playSequence();
@@ -162,7 +224,7 @@ export function AlertAudioPlayer({ detections, isActive }: AlertAudioPlayerProps
       audio.pause();
       audio.currentTime = 0;
     };
-  }, [detections, isActive, isAudioEnabled]);
+  }, [detections, isActive, isAudioEnabled, direction]);
 
   if (isAudioEnabled) {
     return null;
