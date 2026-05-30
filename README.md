@@ -63,6 +63,14 @@ To change how long text remains visible after the most recent topic update:
 ros2 launch fre_information_panel web.launch.py alert_persistence_ms:=5000
 ```
 
+And to remove the introduction sound effects on each detection use the following parameter:
+
+```bash
+ros2 launch fre_information_panel web.launch.py alert_announcement_with_introduction:=false
+```
+
+These values are both exposed to the final container as environment variables, see [compose.yaml](./compose.yaml).
+
 Services exposed:
 
 - UI: http://localhost:5173
