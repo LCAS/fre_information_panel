@@ -1,3 +1,4 @@
 {
-  "idleMs": 5000
+  "alertPersistenceMs": 5000,
+  "alertAnnouncementWithIntroduction": true
 }

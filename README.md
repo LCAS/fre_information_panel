@@ -28,7 +28,7 @@ This package is intentionally coupled so ROS tooling also drives the Node build.
 - rosdep installs system dependencies from package.xml, including nodejs.
 - colcon build triggers npm install and npm run build via CMake custom target.
 - ros2 launch starts the UI and bridge as separate processes.
-- The UI display timeout is configurable with the launch argument idle_ms.
+- The UI display timeout is configurable with the launch argument alert_persistence_ms.
 - Runtime requires Node.js `>=24.11.1 <25` (see `.nvmrc`, `package.json` engines, and Dockerfile configuration).
 
 ## Devcontainer Usage
@@ -60,7 +60,7 @@ This launch file starts two processes separately:
 To change how long text remains visible after the most recent topic update:
 
 ```bash
-ros2 launch fre_information_panel web.launch.py idle_ms:=5000
+ros2 launch fre_information_panel web.launch.py alert_persistence_ms:=5000
 ```
 
 Services exposed:

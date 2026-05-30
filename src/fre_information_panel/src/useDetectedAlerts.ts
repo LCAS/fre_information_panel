@@ -6,24 +6,26 @@ function getBridgeWsUrl(endpoint: string): string {
   return new URL(endpoint, `${wsProtocol}//${window.location.host}`).toString();
 }
 const TOPIC = '/information_panel/alert';
-const DEFAULT_IDLE_MS = 5000;
+const DEFAULT_ALERT_PERSISTENCE_MS = 5000;
 const DEFAULT_BRIDGE_ENDPOINT = '/capability';
 
 type RuntimeConfig = {
-  idleMs?: number;
+  alertPersistenceMs?: number;
   bridgeEndpoint?: string;
 };
 
 type UseDetectedAlertsOptions = {
-  idleMs?: number;
+  alertPersistenceMs?: number;
   onEnter?: () => void;
   onExit?: () => void;
 };
 
 export function useDetectedAlerts(options?: UseDetectedAlertsOptions): string {
-  const [runtimeIdleMs, setRuntimeIdleMs] = useState<number>(DEFAULT_IDLE_MS);
+  const [runtimeAlertPersistenceMs, setRuntimeAlertPersistenceMs] = useState<number>(
+    DEFAULT_ALERT_PERSISTENCE_MS,
+  );
   const [bridgeEndpoint, setBridgeEndpoint] = useState<string>(DEFAULT_BRIDGE_ENDPOINT);
-  const idleMs = options?.idleMs ?? runtimeIdleMs;
+  const alertPersistenceMs = options?.alertPersistenceMs ?? runtimeAlertPersistenceMs;
   const [alertText, setAlertText] = useState<string>('');
   const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isReceivingRef = useRef(false);
@@ -53,18 +55,18 @@ export function useDetectedAlerts(options?: UseDetectedAlertsOptions): string {
         }
 
         const config = (await response.json()) as RuntimeConfig;
-        const configuredIdleMs = config.idleMs;
+        const configuredAlertPersistenceMs = config.alertPersistenceMs;
 
         if (!isMounted) {
           return;
         }
 
         if (
-          options?.idleMs === undefined &&
-          configuredIdleMs !== undefined &&
-          !Number.isNaN(configuredIdleMs)
+          options?.alertPersistenceMs === undefined &&
+          configuredAlertPersistenceMs !== undefined &&
+          !Number.isNaN(configuredAlertPersistenceMs)
         ) {
-          setRuntimeIdleMs(configuredIdleMs);
+          setRuntimeAlertPersistenceMs(configuredAlertPersistenceMs);
         }
 
         if (typeof config.bridgeEndpoint === 'string' && config.bridgeEndpoint.startsWith('/')) {
@@ -81,7 +83,7 @@ export function useDetectedAlerts(options?: UseDetectedAlertsOptions): string {
     return () => {
       isMounted = false;
     };
-  }, [options?.idleMs]);
+  }, [options?.alertPersistenceMs]);
 
   useEffect(() => {
     let ros: Awaited<ReturnType<typeof connect>> | null = null;
@@ -112,7 +114,7 @@ export function useDetectedAlerts(options?: UseDetectedAlertsOptions): string {
 
       exitTimerRef.current = setTimeout(() => {
         handleExit();
-      }, idleMs);
+      }, alertPersistenceMs);
     }
 
     async function setup() {
@@ -139,7 +141,7 @@ export function useDetectedAlerts(options?: UseDetectedAlertsOptions): string {
       handleExit();
       void ros?.close();
     };
-  }, [idleMs, bridgeEndpoint]);
+  }, [alertPersistenceMs, bridgeEndpoint]);
 
   return alertText;
 }

@@ -20,6 +20,10 @@ type AlertAudioPlayerProps = {
   direction?: Direction;
 };
 
+type RuntimeConfig = {
+  alertAnnouncementWithIntroduction?: boolean;
+};
+
 function pickRandomTrack(tracks: string[]): string {
   return tracks[Math.floor(Math.random() * tracks.length)];
 }
@@ -120,11 +124,12 @@ async function playFirstAvailableTrack(
 
 async function playIntroIfNeeded(
   detections: AlertDetectionShare[],
+  isAlertAnnouncementWithIntroductionEnabled: boolean,
   audio: HTMLAudioElement,
   activeTokenRef: { current: number },
   token: number,
 ): Promise<boolean> {
-  if (!shouldPlayIntroForDetections(detections)) {
+  if (!isAlertAnnouncementWithIntroductionEnabled || !shouldPlayIntroForDetections(detections)) {
     return true;
   }
 
@@ -165,6 +170,10 @@ export function AlertAudioPlayer({ detections, isActive, direction }: AlertAudio
   const activeTokenRef = useRef(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isAudioEnabled, setIsAudioEnabled] = useState(false);
+  const [
+    isAlertAnnouncementWithIntroductionEnabled,
+    setIsAlertAnnouncementWithIntroductionEnabled,
+  ] = useState(true);
 
   useEffect(() => {
     const audio = new Audio();
@@ -175,6 +184,45 @@ export function AlertAudioPlayer({ detections, isActive, direction }: AlertAudio
       audio.pause();
       audio.currentTime = 0;
       audioRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadRuntimeConfig() {
+      try {
+        const response = await fetch('/config.json', {
+          headers: {
+            Accept: 'application/json',
+          },
+        });
+        if (!response.ok) {
+          return;
+        }
+
+        const contentType = response.headers.get('content-type') ?? '';
+        if (!contentType.includes('application/json')) {
+          return;
+        }
+
+        const config = (await response.json()) as RuntimeConfig;
+        if (isMounted && typeof config.alertAnnouncementWithIntroduction === 'boolean') {
+          setIsAlertAnnouncementWithIntroductionEnabled(config.alertAnnouncementWithIntroduction);
+        }
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        console.warn(
+          'Runtime config unavailable, using default alert announcement setting:',
+          message,
+        );
+      }
+    }
+
+    void loadRuntimeConfig();
+
+    return () => {
+      isMounted = false;
     };
   }, []);
 
@@ -203,7 +251,13 @@ export function AlertAudioPlayer({ detections, isActive, direction }: AlertAudio
     audio.currentTime = 0;
 
     async function playSequence() {
-      const didCompleteIntro = await playIntroIfNeeded(detections, audio, activeTokenRef, token);
+      const didCompleteIntro = await playIntroIfNeeded(
+        detections,
+        isAlertAnnouncementWithIntroductionEnabled,
+        audio,
+        activeTokenRef,
+        token,
+      );
       if (!didCompleteIntro || !isPlaybackCurrent(activeTokenRef, token)) {
         return;
       }
@@ -224,7 +278,7 @@ export function AlertAudioPlayer({ detections, isActive, direction }: AlertAudio
       audio.pause();
       audio.currentTime = 0;
     };
-  }, [detections, isActive, isAudioEnabled, direction]);
+  }, [detections, isActive, isAudioEnabled, direction, isAlertAnnouncementWithIntroductionEnabled]);
 
   if (isAudioEnabled) {
     return null;
