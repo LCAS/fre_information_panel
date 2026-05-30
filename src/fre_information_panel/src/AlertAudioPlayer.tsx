@@ -53,7 +53,7 @@ function resolveAlertTracks(detections: AlertDetectionShare[]): string[] {
   const hasUnknownDetection = detections.some((detection) => detection.key === 'unknown');
 
   if (hasUnknownDetection) {
-    return [pickRandomTrack(ERROR_TRACKS)];
+    return buildRetryTrackList(ERROR_TRACKS);
   }
 
   if (detections.length > 1) {
