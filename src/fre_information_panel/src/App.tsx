@@ -1,23 +1,23 @@
 import { useState } from 'react';
-import { BugAudioPlayer } from './BugAudioPlayer';
-import { BugEmojiBackground } from './BugEmojiBackground';
-import { buildGradientBackground, formatDetectionLines, parseBugDetections } from './bugThemes';
-import { useDetectedBugs } from './useDetectedBugs';
+import { AlertAudioPlayer } from './AlertAudioPlayer';
+import { AlertEmojiBackground } from './AlertEmojiBackground';
+import { buildGradientBackground, formatDetectionLines, parseAlertDetections } from './alertThemes';
+import { useDetectedAlerts } from './useDetectedAlerts';
 
 export default function App() {
   const soundParam = new URLSearchParams(window.location.search).get('sound');
   const isSoundDisabled = soundParam?.toLowerCase() === 'off';
-  const [isBugActive, setIsBugActive] = useState(false);
-  const bugText = useDetectedBugs({
+  const [isAlertActive, setIsAlertActive] = useState(false);
+  const alertText = useDetectedAlerts({
     onEnter: () => {
-      setIsBugActive(true);
+      setIsAlertActive(true);
     },
     onExit: () => {
-      setIsBugActive(false);
+      setIsAlertActive(false);
     },
   });
-  const detections = parseBugDetections(bugText);
-  const activeDetections = isBugActive ? detections : [];
+  const detections = parseAlertDetections(alertText);
+  const activeDetections = isAlertActive ? detections : [];
   const titleLines = formatDetectionLines(activeDetections);
   const gradientBackground = buildGradientBackground(activeDetections);
   const backgroundClass =
@@ -42,9 +42,9 @@ export default function App() {
       ].join(' ')}
       style={backgroundStyle}
     >
-      <BugEmojiBackground detections={activeDetections} isActive={isVisible} />
+      <AlertEmojiBackground detections={activeDetections} isActive={isVisible} />
       {isSoundDisabled ? null : (
-        <BugAudioPlayer detections={activeDetections} isActive={isVisible} />
+        <AlertAudioPlayer detections={activeDetections} isActive={isVisible} />
       )}
       {isVisible ? (
         <div

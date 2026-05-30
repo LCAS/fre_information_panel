@@ -17,7 +17,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'idle_ms',
             default_value='5000',
-            description='Milliseconds to keep the detected bug text visible after the last received message.',
+            description='Milliseconds to keep the detected alert visible after the last received message.',
         ),
         DeclareLaunchArgument(
             'start_bridge',

@@ -2,7 +2,7 @@
   "port": 9000,
   "expose": {
     "subscribe": {
-      "/bug_detection/detected_bugs": "std_msgs/msg/String"
+      "/information_panel/alert": "std_msgs/msg/String"
     }
   }
 }
