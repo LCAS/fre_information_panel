@@ -1,8 +1,9 @@
 {
   "name": "fre_information_panel",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "author": "Josh Cooper <joshcooper@lincoln.ac.uk>",
-  "private": true,
+  "private": false,
+  "license": "Apache-2.0",
   "type": "module",
   "engines": {
     "node": ">=24.11.1 <25"

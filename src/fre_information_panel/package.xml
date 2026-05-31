@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>fre_information_panel</name>
-  <version>0.0.0</version>
+  <version>1.0.0</version>
   <description>React + Vite information panel subscribing to ROS 2 topics via rclnodejs/web</description>
   <maintainer email="joshcooper@lincoln.ac.uk">Josh Cooper</maintainer>
   <license>Apache-2.0</license>
