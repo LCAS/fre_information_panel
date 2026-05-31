@@ -5,26 +5,28 @@ function getBridgeWsUrl(endpoint: string): string {
   const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   return new URL(endpoint, `${wsProtocol}//${window.location.host}`).toString();
 }
-const TOPIC = '/bug_detection/detected_bugs';
-const DEFAULT_IDLE_MS = 5000;
+const TOPIC = '/information_panel/alert';
+const DEFAULT_ALERT_PERSISTENCE_MS = 5000;
 const DEFAULT_BRIDGE_ENDPOINT = '/capability';
 
 type RuntimeConfig = {
-  idleMs?: number;
+  alertPersistenceMs?: number;
   bridgeEndpoint?: string;
 };
 
-type UseDetectedBugsOptions = {
-  idleMs?: number;
+type UseDetectedAlertsOptions = {
+  alertPersistenceMs?: number;
   onEnter?: () => void;
   onExit?: () => void;
 };
 
-export function useDetectedBugs(options?: UseDetectedBugsOptions): string {
-  const [runtimeIdleMs, setRuntimeIdleMs] = useState<number>(DEFAULT_IDLE_MS);
+export function useDetectedAlerts(options?: UseDetectedAlertsOptions): string {
+  const [runtimeAlertPersistenceMs, setRuntimeAlertPersistenceMs] = useState<number>(
+    DEFAULT_ALERT_PERSISTENCE_MS,
+  );
   const [bridgeEndpoint, setBridgeEndpoint] = useState<string>(DEFAULT_BRIDGE_ENDPOINT);
-  const idleMs = options?.idleMs ?? runtimeIdleMs;
-  const [bugText, setBugText] = useState<string>('');
+  const alertPersistenceMs = options?.alertPersistenceMs ?? runtimeAlertPersistenceMs;
+  const [alertText, setAlertText] = useState<string>('');
   const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isReceivingRef = useRef(false);
   const onEnterRef = useRef(options?.onEnter);
@@ -53,18 +55,18 @@ export function useDetectedBugs(options?: UseDetectedBugsOptions): string {
         }
 
         const config = (await response.json()) as RuntimeConfig;
-        const configuredIdleMs = config.idleMs;
+        const configuredAlertPersistenceMs = config.alertPersistenceMs;
 
         if (!isMounted) {
           return;
         }
 
         if (
-          options?.idleMs === undefined &&
-          configuredIdleMs !== undefined &&
-          !Number.isNaN(configuredIdleMs)
+          options?.alertPersistenceMs === undefined &&
+          configuredAlertPersistenceMs !== undefined &&
+          !Number.isNaN(configuredAlertPersistenceMs)
         ) {
-          setRuntimeIdleMs(configuredIdleMs);
+          setRuntimeAlertPersistenceMs(configuredAlertPersistenceMs);
         }
 
         if (typeof config.bridgeEndpoint === 'string' && config.bridgeEndpoint.startsWith('/')) {
@@ -81,7 +83,7 @@ export function useDetectedBugs(options?: UseDetectedBugsOptions): string {
     return () => {
       isMounted = false;
     };
-  }, [options?.idleMs]);
+  }, [options?.alertPersistenceMs]);
 
   useEffect(() => {
     let ros: Awaited<ReturnType<typeof connect>> | null = null;
@@ -101,7 +103,7 @@ export function useDetectedBugs(options?: UseDetectedBugsOptions): string {
       }
 
       isReceivingRef.current = false;
-      setBugText('');
+      setAlertText('');
       onExitRef.current?.();
     }
 
@@ -112,7 +114,7 @@ export function useDetectedBugs(options?: UseDetectedBugsOptions): string {
 
       exitTimerRef.current = setTimeout(() => {
         handleExit();
-      }, idleMs);
+      }, alertPersistenceMs);
     }
 
     async function setup() {
@@ -120,12 +122,12 @@ export function useDetectedBugs(options?: UseDetectedBugsOptions): string {
         ros = await connect(getBridgeWsUrl(bridgeEndpoint));
         await ros.subscribe<'std_msgs/msg/String'>(TOPIC, (msg) => {
           handleEnter();
-          setBugText(msg.data);
+          setAlertText(msg.data);
           scheduleExit();
         });
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
-        console.error('Failed to subscribe to detected bugs topic:', message);
+        console.error('Failed to subscribe to alert topic:', message);
         handleExit();
       }
     }
@@ -139,7 +141,7 @@ export function useDetectedBugs(options?: UseDetectedBugsOptions): string {
       handleExit();
       void ros?.close();
     };
-  }, [idleMs, bridgeEndpoint]);
+  }, [alertPersistenceMs, bridgeEndpoint]);
 
-  return bugText;
+  return alertText;
 }

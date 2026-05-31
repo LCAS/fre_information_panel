@@ -1,5 +1,5 @@
 import { type CSSProperties } from 'react';
-import type { BugDetectionShare } from './bugThemes';
+import type { AlertDetectionShare } from './alertThemes';
 
 const EMOJI_POSITIONS = [
   { top: '8%', left: '10%', size: '4.5rem', duration: '11s', delay: '-2s', rotate: '-8deg' },
@@ -13,12 +13,12 @@ const EMOJI_POSITIONS = [
   { top: '84%', left: '42%', size: '3.75rem', duration: '9.5s', delay: '-9s', rotate: '4deg' },
 ];
 
-type BugEmojiBackgroundProps = {
-  detections: BugDetectionShare[];
+type AlertEmojiBackgroundProps = {
+  detections: AlertDetectionShare[];
   isActive: boolean;
 };
 
-function buildSlotCounts(detections: BugDetectionShare[], slotCount: number): number[] {
+function buildSlotCounts(detections: AlertDetectionShare[], slotCount: number): number[] {
   const exactCounts = detections.map(({ share }) => share * slotCount);
   const baseCounts = exactCounts.map(Math.floor);
   let remainingSlots = slotCount - baseCounts.reduce((sum, count) => sum + count, 0);
@@ -39,13 +39,13 @@ function buildSlotCounts(detections: BugDetectionShare[], slotCount: number): nu
   return baseCounts;
 }
 
-function distributeEmojis(detections: BugDetectionShare[]) {
+function distributeEmojis(detections: AlertDetectionShare[]) {
   const slotCounts = buildSlotCounts(detections, EMOJI_POSITIONS.length);
   const remaining = detections.map((detection, index) => ({
     detection,
     remainingSlots: slotCounts[index],
   }));
-  const assignedDetections: BugDetectionShare[] = [];
+  const assignedDetections: AlertDetectionShare[] = [];
 
   while (assignedDetections.length < EMOJI_POSITIONS.length) {
     remaining.sort((left, right) => right.remainingSlots - left.remainingSlots);
@@ -69,7 +69,7 @@ function distributeEmojis(detections: BugDetectionShare[]) {
   return assignedDetections;
 }
 
-export function BugEmojiBackground({ detections, isActive }: BugEmojiBackgroundProps) {
+export function AlertEmojiBackground({ detections, isActive }: AlertEmojiBackgroundProps) {
   if (!isActive || detections.length === 0) {
     return null;
   }

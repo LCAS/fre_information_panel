@@ -1,17 +1,18 @@
 # 🐞 FRE Information Panel
 
-ROS 2 package + React/Vite web UI for displaying information (currently only bug detection alerts).
+ROS 2 package + React/Vite web UI for displaying information alerts (plant health, pest detection, etc.).
 
 The project uses `rclnodejs/web` as the browser bridge and is containerised through the `aoc_container_base` stack.
 
 ## Topics
 
-### Bug Detection
+### Alerts
 
-- Topic: `/bug_detection/detected_bugs`
+- Topic: `/information_panel/alert`
 - Message type: `std_msgs/msg/String`
-- Expected options: `[ "bee", "butterfly", "ladybird" ]`
+- Expected options: `[ "bee", "butterfly", "ladybird", "diseased_plant" ]`
 - Can be passed as `bee,butterfly` when both are detected.
+- Example: `diseased_plant` for diseased plant classification.
 
 ## Architecture
 
@@ -27,7 +28,7 @@ This package is intentionally coupled so ROS tooling also drives the Node build.
 - rosdep installs system dependencies from package.xml, including nodejs.
 - colcon build triggers npm install and npm run build via CMake custom target.
 - ros2 launch starts the UI and bridge as separate processes.
-- The UI display timeout is configurable with the launch argument idle_ms.
+- The UI display timeout is configurable with the launch argument alert_persistence_ms.
 - Runtime requires Node.js `>=24.11.1 <25` (see `.nvmrc`, `package.json` engines, and Dockerfile configuration).
 
 ## Devcontainer Usage
@@ -59,8 +60,16 @@ This launch file starts two processes separately:
 To change how long text remains visible after the most recent topic update:
 
 ```bash
-ros2 launch fre_information_panel web.launch.py idle_ms:=5000
+ros2 launch fre_information_panel web.launch.py alert_persistence_ms:=5000
 ```
+
+And to remove the introduction sound effects on each detection use the following parameter:
+
+```bash
+ros2 launch fre_information_panel web.launch.py alert_announcement_with_introduction:=false
+```
+
+These values are both exposed to the final container as environment variables, see [compose.yaml](./compose.yaml).
 
 Services exposed:
 
@@ -126,15 +135,16 @@ ros2 launch fre_information_panel web.launch.py
 3. Publish a test message from another ROS terminal in the same domain:
 
 ```bash
-ros2 topic pub /bug_detection/detected_bugs std_msgs/msg/String "{data: 'bee'}"
-ros2 topic pub /bug_detection/detected_bugs std_msgs/msg/String "{data: 'butterfly'}"
-ros2 topic pub /bug_detection/detected_bugs std_msgs/msg/String "{data: 'ladybird'}"
-ros2 topic pub /bug_detection/detected_bugs std_msgs/msg/String "{data: 'bee,ladybird'}"
-ros2 topic pub /bug_detection/detected_bugs std_msgs/msg/String "{data: 'bee,butterfly'}"
-ros2 topic pub /bug_detection/detected_bugs std_msgs/msg/String "{data: 'bee,butterfly,ladybird'}"
+ros2 topic pub --once /information_panel/alert std_msgs/msg/String "{data: 'bee'}"
+ros2 topic pub --once /information_panel/alert std_msgs/msg/String "{data: 'butterfly'}"
+ros2 topic pub --once /information_panel/alert std_msgs/msg/String "{data: 'ladybird'}"
+ros2 topic pub --once /information_panel/alert std_msgs/msg/String "{data: 'diseased_plant@left'}"
+ros2 topic pub --once /information_panel/alert std_msgs/msg/String "{data: 'bee,ladybird'}"
+ros2 topic pub --once /information_panel/alert std_msgs/msg/String "{data: 'bee,butterfly'}"
+ros2 topic pub --once /information_panel/alert std_msgs/msg/String "{data: 'bee,butterfly,ladybird'}"
 ```
 
-4. Confirm the page updates to indicate that the bug has been found.
+4. Confirm the page updates to display the alert.
 
 ## Optional Hot-Reload UI Workflow
 

@@ -16,7 +16,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const PORT = 5173;
 const DIST_DIR = fs.realpathSync(path.resolve(__dirname, 'dist'));
-const IDLE_MS = Number.parseInt(process.env.FRE_INFORMATION_PANEL_IDLE_MS ?? '5000', 10);
+const ALERT_PERSISTENCE_MS = Number.parseInt(
+  process.env.FRE_INFORMATION_PANEL_ALERT_PERSISTENCE_MS ?? '5000',
+  10,
+);
+const ALERT_ANNOUNCEMENT_WITH_INTRODUCTION =
+  (process.env.FRE_INFORMATION_PANEL_ALERT_ANNOUNCEMENT_WITH_INTRODUCTION ?? 'true') !== 'false';
 const BRIDGE_HOST = process.env.FRE_INFORMATION_PANEL_BRIDGE_HOST ?? '127.0.0.1';
 const BRIDGE_PORT = (() => {
   const port = Number.parseInt(process.env.FRE_INFORMATION_PANEL_BRIDGE_PORT ?? '9000', 10);
@@ -99,7 +104,8 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(
       JSON.stringify({
-        idleMs: Number.isNaN(IDLE_MS) ? 5000 : IDLE_MS,
+        alertPersistenceMs: Number.isNaN(ALERT_PERSISTENCE_MS) ? 5000 : ALERT_PERSISTENCE_MS,
+        alertAnnouncementWithIntroduction: ALERT_ANNOUNCEMENT_WITH_INTRODUCTION,
         bridgeEndpoint: BRIDGE_ENDPOINT,
       }),
     );

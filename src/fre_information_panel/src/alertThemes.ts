@@ -1,29 +1,31 @@
-export type BugKey = 'bee' | 'butterfly' | 'ladybird' | 'unknown';
-type KnownBugKey = Exclude<BugKey, 'unknown'>;
+export type AlertKey = 'bee' | 'butterfly' | 'ladybird' | 'diseased_plant' | 'unknown';
+type KnownAlertKey = Exclude<AlertKey, 'unknown'>;
 
-export type BugTheme = {
-  key: BugKey;
+export type AlertTheme = {
+  key: AlertKey;
   label: string;
   emoji: string;
   solidBackgroundClass: string;
   gradientColour: string;
+  playIntro: boolean;
 };
 
-export type BugDetectionShare = {
-  key: BugKey;
-  theme: BugTheme;
+export type AlertDetectionShare = {
+  key: AlertKey;
+  theme: AlertTheme;
   count: number;
   share: number;
   rawText?: string;
 };
 
-export const BUG_THEMES: Record<BugKey, BugTheme> = {
+export const ALERT_THEMES: Record<AlertKey, AlertTheme> = {
   bee: {
     key: 'bee',
     label: 'Bee',
     emoji: '🐝',
     solidBackgroundClass: 'bg-lime-600',
     gradientColour: '#65a30d',
+    playIntro: true,
   },
   butterfly: {
     key: 'butterfly',
@@ -31,6 +33,7 @@ export const BUG_THEMES: Record<BugKey, BugTheme> = {
     emoji: '🦋',
     solidBackgroundClass: 'bg-yellow-300',
     gradientColour: '#fde047',
+    playIntro: true,
   },
   ladybird: {
     key: 'ladybird',
@@ -38,6 +41,15 @@ export const BUG_THEMES: Record<BugKey, BugTheme> = {
     emoji: '🐞',
     solidBackgroundClass: 'bg-red-600',
     gradientColour: '#dc2626',
+    playIntro: true,
+  },
+  diseased_plant: {
+    key: 'diseased_plant',
+    label: 'Diseased Plant',
+    emoji: '🥀',
+    solidBackgroundClass: 'bg-orange-600',
+    gradientColour: '#ea580c',
+    playIntro: false,
   },
   unknown: {
     key: 'unknown',
@@ -45,15 +57,16 @@ export const BUG_THEMES: Record<BugKey, BugTheme> = {
     emoji: '⚠️',
     solidBackgroundClass: 'bg-blue-600',
     gradientColour: '#2563eb',
+    playIntro: false,
   },
 };
 
-const KNOWN_BUG_KEYS: KnownBugKey[] = ['bee', 'butterfly', 'ladybird'];
-const KNOWN_BUG_KEY_SET = new Set<KnownBugKey>(KNOWN_BUG_KEYS);
+const KNOWN_ALERT_KEYS: KnownAlertKey[] = ['bee', 'butterfly', 'ladybird', 'diseased_plant'];
+const KNOWN_ALERT_KEY_SET = new Set<KnownAlertKey>(KNOWN_ALERT_KEYS);
 const TOKEN_SPLIT_PATTERN = /[\n,/&|+]+/;
 
-export function parseBugDetections(rawBugText: string): BugDetectionShare[] {
-  const trimmedText = rawBugText.trim();
+export function parseAlertDetections(rawAlertText: string): AlertDetectionShare[] {
+  const trimmedText = rawAlertText.trim();
   if (!trimmedText) {
     return [];
   }
@@ -69,13 +82,13 @@ export function parseBugDetections(rawBugText: string): BugDetectionShare[] {
   }
 
   const hasUnknownToken = normalisedTokens.some(
-    (token) => !KNOWN_BUG_KEY_SET.has(token as KnownBugKey),
+    (token) => !KNOWN_ALERT_KEY_SET.has(token as KnownAlertKey),
   );
   if (hasUnknownToken) {
     return [
       {
         key: 'unknown',
-        theme: BUG_THEMES.unknown,
+        theme: ALERT_THEMES.unknown,
         count: 1,
         share: 1,
         rawText: trimmedText,
@@ -83,18 +96,18 @@ export function parseBugDetections(rawBugText: string): BugDetectionShare[] {
     ];
   }
 
-  const tokenCounts = new Map<KnownBugKey, number>();
-  const detectionOrder: KnownBugKey[] = [];
+  const tokenCounts = new Map<KnownAlertKey, number>();
+  const detectionOrder: KnownAlertKey[] = [];
 
   for (const token of normalisedTokens) {
-    const bugKey = token as KnownBugKey;
+    const alertKey = token as KnownAlertKey;
 
-    if (!tokenCounts.has(bugKey)) {
-      detectionOrder.push(bugKey);
-      tokenCounts.set(bugKey, 0);
+    if (!tokenCounts.has(alertKey)) {
+      detectionOrder.push(alertKey);
+      tokenCounts.set(alertKey, 0);
     }
 
-    tokenCounts.set(bugKey, (tokenCounts.get(bugKey) ?? 0) + 1);
+    tokenCounts.set(alertKey, (tokenCounts.get(alertKey) ?? 0) + 1);
   }
 
   const totalCount = Array.from(tokenCounts.values()).reduce((sum, count) => sum + count, 0);
@@ -102,11 +115,11 @@ export function parseBugDetections(rawBugText: string): BugDetectionShare[] {
     return [];
   }
 
-  return detectionOrder.map((bugKey) => {
-    const count = tokenCounts.get(bugKey) ?? 0;
+  return detectionOrder.map((alertKey) => {
+    const count = tokenCounts.get(alertKey) ?? 0;
     return {
-      key: bugKey,
-      theme: BUG_THEMES[bugKey],
+      key: alertKey,
+      theme: ALERT_THEMES[alertKey],
       count,
       share: count / totalCount,
       rawText: undefined,
@@ -114,7 +127,8 @@ export function parseBugDetections(rawBugText: string): BugDetectionShare[] {
   });
 }
 
-export function formatDetectionLines(detections: BugDetectionShare[]): string[] {
+// Multiple Detection Support.
+export function formatDetectionLines(detections: AlertDetectionShare[]): string[] {
   if (detections.length === 1 && detections[0].key === 'unknown') {
     return (detections[0].rawText ?? '').split('\n').filter(Boolean);
   }
@@ -137,7 +151,7 @@ export function formatDetectionLines(detections: BugDetectionShare[]): string[] 
   });
 }
 
-export function buildGradientBackground(detections: BugDetectionShare[]): string | undefined {
+export function buildGradientBackground(detections: AlertDetectionShare[]): string | undefined {
   if (detections.length <= 1) {
     return undefined;
   }
