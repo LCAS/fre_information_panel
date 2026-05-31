@@ -1,6 +1,6 @@
 services:
   fre_information_panel:
-    image: ghcr.io/lcas/fre_information_panel:latest
+    image: ghcr.io/lcas/fre_information_panel:1
     stdin_open: true
     tty: true
     ports:
