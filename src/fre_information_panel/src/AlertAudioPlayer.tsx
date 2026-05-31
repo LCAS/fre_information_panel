@@ -158,12 +158,13 @@ async function playAlertTrackSequence(
 ): Promise<void> {
   for (const track of tracks) {
     await playTrack(track, audio, activeTokenRef, token);
-    await playDirectionIfPresent(direction, audio, activeTokenRef, token);
 
     if (!isPlaybackCurrent(activeTokenRef, token)) {
       return;
     }
   }
+
+  await playDirectionIfPresent(direction, audio, activeTokenRef, token);
 }
 
 export function AlertAudioPlayer({ detections, isActive, direction }: AlertAudioPlayerProps) {
